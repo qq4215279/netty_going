@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Netty Push Message Browser Client</title>
+</head>
+<style type="text/css">
+    div.divCenter {
+        margin: 32px auto;
+        padding: 4px;
+        width: 660px;
+        font: normal 12px "Microsoft JhengHei", arial, sans-serif;
+        text-align: center;
+    }
+    div.divCenter h3 {
+        font-size: 20px;
+        text-align: center;
+    }
+    div.divCenter input {
+        margin: 4px;
+        padding: 4px;
+        font-size: 16px;
+        text-align: left;
+    }
+    div.divCenter span.spanLeft {
+        float: left;
+        margin: 4px;
+        padding: 4px;
+        font-size: 16px;
+        text-align: left;
+    }
+</style>
+<body onload="initWebSocket();">
+<script type="text/javascript">
+    // TODO: define WebSocket object
+    var ws;
+    /**
+     * init Websocket
+     */
+    function initWebSocket() {
+        if("WebSocket" in window) {
+            console.log("Your browser supports WebSocket!");
+            // TODO: open a web socket
+            ws = new WebSocket("ws://localhost:8086/pushmsg");
+            ws.onopen = function() {
+                // TODO: Web Socket has established，send data to server
+                console.log("Send data to server...");
+                ws.send("opens server");
+            };
+            ws.onmessage = function(ev) {
+                var received_msg = ev.data;
+                console.log("Data has been received...");
+                let divRespText = document.getElementById("id-span-respText");
+                divRespText.innerHTML += received_msg + "<br>";
+            };
+            ws.onclose = function() {
+                // TODO: close websocket
+                console.log("Connect is closed...");
+            };
+        } else {
+            // TODO: Your browser does not support WebSocket
+            console.log("Your browser does not support WebSocket!");
+        }
+    }
+    /**
+     * send message to WebSocket server
+     * @param msg
+     */
+    function send(msg){
+        if(!window.WebSocket) {
+            return;
+        }
+        if(ws.readyState == WebSocket.OPEN) {
+            ws.send(msg);
+        } else {
+            console.log("WebSocket connect does not establish!");
+        }
+    }
+</script>
+<div class="divCenter">
+    <h3>基于Netty构建消息推送系统</h3>
+    <form>
+        <span class="spanLeft">服务器推送消息:</span>
+        <span class="spanLeft" id="id-span-respText"></span>
+    </form>
+</div>
+</body>
+</html>
