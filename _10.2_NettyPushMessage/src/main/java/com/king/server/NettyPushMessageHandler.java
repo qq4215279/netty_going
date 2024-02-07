@@ -84,16 +84,17 @@ public class NettyPushMessageHandler extends SimpleChannelInboundHandler<Object>
         }
         // TODO: 判断是否ping消息
         if (frame instanceof PingWebSocketFrame) {
-            ctx.channel().write(
-                    new PongWebSocketFrame(frame.content().retain()));
+            ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }
+
         // TODO: 本例程仅支持文本消息,不支持二进制消息
         if (!(frame instanceof TextWebSocketFrame)) {
             logger.debug("Supports text message only, does not support binary message.");
             throw new UnsupportedOperationException(String.format(
                     "%s frame types not supported", frame.getClass().getName()));
         }
+
         // TODO: 返回应答消息
         String request = ((TextWebSocketFrame) frame).text();
         logger.debug("Server received: " + request);
@@ -112,10 +113,10 @@ public class NettyPushMessageHandler extends SimpleChannelInboundHandler<Object>
         // TODO: Upgrade为WebSocket方式,过滤掉get/Post
         if (!req.decoderResult().isSuccess() || (!"websocket".equals(req.headers().get("Upgrade")))) {
             // TODO: 若不是WebSocket方式,则将req(BAD_REQUEST)返回给客户端
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
+            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
             return;
         }
+
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                 "ws://localhost:8086/pushmsg", null, false);
         handShaker = wsFactory.newHandshaker(req);
@@ -136,11 +137,11 @@ public class NettyPushMessageHandler extends SimpleChannelInboundHandler<Object>
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, DefaultFullHttpResponse res) {
         // TODO: 返回应答给客户端
         if (res.status().code() != 200) {
-            ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(),
-                    CharsetUtil.UTF_8);
+            ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
             res.content().writeBytes(buf);
             buf.release();
         }
+
         ChannelFuture f = ctx.channel().writeAndFlush(res);
         // TODO: 如果是非Keep-Alive则关闭连接
         if (!isKeepAlive(req) || res.status().code() != 200) {

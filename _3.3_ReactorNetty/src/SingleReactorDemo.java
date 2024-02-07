@@ -1,5 +1,6 @@
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -23,8 +24,8 @@ public class SingleReactorDemo {
             /**
              * start single thread reactor
              */
-            ServerBootstrap server_bootstrap = new ServerBootstrap();
-            server_bootstrap.group(reactorGroup, reactorGroup)
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(reactorGroup, reactorGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -33,8 +34,9 @@ public class SingleReactorDemo {
                             // 此处省略相关代码
                         }
                     });
-            Channel ch = server_bootstrap.bind(port).sync().channel();
-            ch.closeFuture().sync();
+
+            ChannelFuture future = serverBootstrap.bind(port).sync();
+            future.channel().closeFuture().sync();
         } catch(InterruptedException e) {
             e.printStackTrace();
         } finally {

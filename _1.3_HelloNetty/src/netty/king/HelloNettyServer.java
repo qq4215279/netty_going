@@ -72,14 +72,11 @@ public class HelloNettyServer {
      * @throws Exception
      */
     public void run() throws Exception {
-        //
-
-
         EventLoopGroup boosGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(boosGroup, workerGroup)
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(boosGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -89,8 +86,9 @@ public class HelloNettyServer {
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture f = b.bind(port).sync();
-            f.channel().closeFuture().sync();
+
+            ChannelFuture future = serverBootstrap.bind(port).sync();
+            future.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             boosGroup.shutdownGracefully();

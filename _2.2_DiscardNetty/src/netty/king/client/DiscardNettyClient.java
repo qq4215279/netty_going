@@ -19,8 +19,8 @@ public final class DiscardNettyClient {
     public static void main(String[] args) throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
             .channel(NioSocketChannel.class)
             .handler(new ChannelInitializer<SocketChannel>() {
                 @Override
@@ -29,10 +29,11 @@ public final class DiscardNettyClient {
                     p.addLast(new DiscardNettyClientHandler());
                 }
             });
+
             // Make the connection attempt.
-            ChannelFuture f = b.connect(HOST, PORT).sync();
+            ChannelFuture future = bootstrap.connect(HOST, PORT).sync();
             // Wait until the connection is closed.
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } finally {
             group.shutdownGracefully();
         }
